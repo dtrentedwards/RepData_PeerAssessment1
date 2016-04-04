@@ -1,20 +1,10 @@
----
-title: "PA1_template.Rmd"
-author:  "DTE"
-date: "April 3, 2016"
-output: html_document
----
 
 ### Reproducible Research - Assignment 1
 ### Loading and preprocessing the data
 ### Set Directory
-```{r}
 dir <- setwd("~/CourseraData/RR")
-```
-
 
 ### Get and save data to correct directory
-```{r}
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 temp <- tempfile()
 download.file(url, temp, mode="wb")
@@ -23,48 +13,29 @@ write.csv(data, "activity.csv", row.names=F)
 unlink(temp)
 
 library(knitr)
-```
-
 
 ### What is mean total number of steps taken per day?
 ### Make a histogram of the total number of steps taken each day
-```{r}
 datasteps <- aggregate(steps~date, data=data, sum, na.rm= TRUE)
 hist(datasteps$steps)
-```
-
-
 ### Calculate and report the mean and median total number of steps taken per day
-```{r}
 datamean <- aggregate(steps~date, data=data, mean, na.rm = TRUE)
 datamedian <- aggregate(steps~date, data=data, median, na.rm = TRUE)
-```
-
 
 ### What is the average daily activity pattern?
 ### Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) 
 ### and the average number of steps taken, averaged across all days (y-axis)
-```{r}
 steps.ts <- aggregate(steps ~ interval, data=data, FUN=mean)
 plot(steps ~ interval, steps.ts, type = "s",
        xlab = "Interval", ylab = "Average number of steps")
-```
-
-
 ### Which 5-minute interval, on average across all the days in the dataset, 
 ### contains the maximum number of steps?
-```{r}
 steps.ts$interval[which.max(steps.ts$steps)]
-```
-
 
 ### Imputing missing values 
 ### Calculate and report the total number of missing values in the dataset 
 ### (i.e. the total number of rows with NAs)
-```{r}
 sum(is.na(data))
-```
-
 
 ### Devise a strategy for filling in all of the missing values in the dataset. 
 ### The strategy does not need to be sophisticated. For example, you could 
@@ -74,32 +45,21 @@ sum(is.na(data))
 
 ### Create a new dataset that is equal to the original dataset but with the 
 ### missing data filled in.
-```{r}
 library(plyr)
 impute.mean <- function(x) replace(x, is.na(x), mean(x, na.rm = TRUE))
 data2 <- ddply(data, ~ interval, transform, steps = impute.mean(steps))
-```
-
 
 ### Used as a check for equation above
-```{r}
 intervalmean <- aggregate(steps~interval, data=data, mean, na.rm = TRUE)  
-```
 
 ### Make a histogram of the total number of steps taken each day
-```{r}
 datasteps2 <- aggregate(steps~date, data=data2, sum)
 hist(datasteps2$steps)
-```
-
 
 ### Calculate and report the mean and median total number of steps taken 
 ### per day. 
-```{r}
 datamean2 <- aggregate(steps~date, data=data2, mean)
 datamedian2 <- aggregate(steps~date, data=data2, median)
-```
-
 
 ### Do these values differ from the estimates from the first part 
 ### of the assignment? What is the impact of imputing missing data on the 
@@ -109,24 +69,17 @@ datamedian2 <- aggregate(steps~date, data=data2, median)
 
 ### Are there differences in activity patterns between weekdays and weekends?
 ### Convert date to weekend/weekdays
-```{r}
 data2$day <- weekdays(as.Date(data2$date))
 library(timeDate)
 data2$week <- isWeekday(data2$date)
-```
-
 
 ### Create a new factor variable in the dataset with two levels -- "weekday" 
 ### and "weekend" indicating whether a given date is a weekday or weekend day.
-```{r}
 data2$dayend <- ifelse(data2$week == TRUE, "weekday", "weekend")
 data2$dayend <- as.factor(data2$dayend)
-```
-
 
 ### Make a panel plot containing a time series plot
-```{r}
 library(lattice)
 final <- aggregate(steps ~ interval + dayend, data=data2, FUN=mean)
 xyplot(steps ~ interval | dayend, data=final, type="l", layout=c(1,2))
-```
+
